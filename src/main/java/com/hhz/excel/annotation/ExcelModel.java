@@ -16,4 +16,14 @@ public @interface ExcelModel {
 	 * excel 标题栏所在行数
 	 */
 	int titleRowIndex() default 0;
+
+	RangeType rangeType() default RangeType.FIXED;
+
+	public enum RangeType {
+		FIXED, RELATIVE;
+	}
+
+	int minSheetRange() default 0;
+
+	int maxSheetRange() default Integer.MAX_VALUE;
 }
