@@ -22,7 +22,7 @@ import com.google.common.collect.Maps;
 import com.hhz.common.Converter;
 
 public class ExcelParser<T> {
-	private final AnnotationExcelDescriptor descriptor;
+	private final AnnotationSheetDefinition descriptor;
 	private final Class<T> targetClass;
 	private Map<Class<?>, Converter<String, ?>> converterMap;
 	private Workbook workbook;
@@ -31,7 +31,7 @@ public class ExcelParser<T> {
 	private ExcelParser(Class<T> targetClass,
 			Map<Class<?>, Converter<String, ?>> converterMap, Workbook workbook) {
 		this.targetClass = targetClass;
-		this.descriptor = new AnnotationExcelDescriptor(targetClass);
+		this.descriptor = new AnnotationSheetDefinition(targetClass);
 		this.converterMap = converterMap;
 		this.workbook = workbook;
 	}

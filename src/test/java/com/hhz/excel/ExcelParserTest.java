@@ -10,10 +10,10 @@ import org.junit.Test;
 import com.alibaba.fastjson.JSON;
 import com.hhz.excel.ExcelParser.SheetParserBuilder;
 import com.hhz.excel.annotation.SheetColumn;
-import com.hhz.excel.annotation.SheetModel;
+import com.hhz.excel.annotation.SheetDescription;
 
 public class ExcelParserTest {
-	@SheetModel
+	@SheetDescription
 	static class Cols {
 		@SheetColumn("列1")
 		private String col1;

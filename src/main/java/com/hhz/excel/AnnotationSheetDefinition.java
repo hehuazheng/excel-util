@@ -9,17 +9,17 @@ import org.apache.poi.ss.usermodel.Row;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.hhz.excel.annotation.SheetColumn;
-import com.hhz.excel.annotation.SheetModel;
+import com.hhz.excel.annotation.SheetDescription;
 
-public class AnnotationExcelDescriptor extends AbstractExcelDescripor {
+public class AnnotationSheetDefinition extends AbstractSheetDefinition {
 	private Map<String, Field> titleNameFieldMap = null;
 
-	public AnnotationExcelDescriptor(Class<?> clazz) {
+	public AnnotationSheetDefinition(Class<?> clazz) {
 		super();
 		Preconditions.checkArgument(
-				clazz.isAnnotationPresent(SheetModel.class), clazz
+				clazz.isAnnotationPresent(SheetDescription.class), clazz
 						+ "上未加ExcelModel注解");
-		SheetModel model = clazz.getAnnotation(SheetModel.class);
+		SheetDescription model = clazz.getAnnotation(SheetDescription.class);
 		super.setTitleRowIndex(model.titleRowIndex());
 		titleNameFieldMap = Maps.newHashMap();
 		for (Field field : clazz.getDeclaredFields()) {

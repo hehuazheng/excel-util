@@ -5,11 +5,11 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public abstract class AbstractExcelDescripor {
+public abstract class AbstractSheetDefinition {
 	private int titleRowIndex;
 	protected List<FieldWrapper> fieldWrapperList;
 
-	public AbstractExcelDescripor() {
+	public AbstractSheetDefinition() {
 		fieldWrapperList = Lists.newArrayList();
 	}
 
