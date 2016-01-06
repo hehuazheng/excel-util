@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.alibaba.fastjson.JSON;
 import com.hhz.excel.annotation.SheetColumn;
 import com.hhz.excel.annotation.SheetDescription;
-import com.hhz.excel.poi.ExcelParser.SheetParserBuilder;
+import com.hhz.excel.poi.ExcelParser.ExcelParserBuilder;
 
 public class ExcelParserTest {
 	@SheetDescription
@@ -101,7 +101,7 @@ public class ExcelParserTest {
 	public void testParse() throws Exception {
 		Workbook wb = WorkbookFactory.create(new FileInputStream(TestFileUtils
 				.getFilePath("test.xlsx")));
-		List<Cols> list = SheetParserBuilder.create(Cols.class).setWorkbook(wb)
+		List<Cols> list = ExcelParserBuilder.create(Cols.class).setWorkbook(wb)
 				.build().toList();
 		System.out.println(JSON.toJSONString(list));
 	}

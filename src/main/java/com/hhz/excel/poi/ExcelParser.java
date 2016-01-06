@@ -2,11 +2,10 @@ package com.hhz.excel.poi;
 
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.hhz.excel.poi.support.CellConverter;
 import com.hhz.excel.support.AnnotationSheetDefinition;
 
 public class ExcelParser<T> {
@@ -25,13 +26,33 @@ public class ExcelParser<T> {
 	private final AnnotationSheetDefinition descriptor;
 	private final Class<T> targetClass;
 	private Workbook workbook;
-	private static final String DEFAULT_DATE_FORMAT = "yyyy-mm-dd hh:MM:ss";
-	private boolean ignoreFieldError = false;
+	private boolean stopOnError = true;
+	private static final Map<Class<?>, CellConverter<?>> DEFAULT_CONVERTER_MAP;
+	static {
+		Map<Class<?>, CellConverter<?>> map = Maps.newHashMap();
+		map.put(int.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
+		map.put(Integer.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
+		map.put(double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
+		map.put(Double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
+		map.put(String.class, CellConverter.CELL_TO_STRING_CONVERTER);
+		map.put(Date.class, CellConverter.CELL_TO_DATE_CONVERTER);
+		DEFAULT_CONVERTER_MAP = map;
+	}
+	private Map<Class<?>, CellConverter<?>> converterMap;
 
-	private ExcelParser(Class<T> targetClass, Workbook workbook) {
+	private ExcelParser(Workbook workbook, Class<T> targetClass,
+			boolean stopOnError, Map<Class<?>, CellConverter<Cell>> converterMap) {
+		this.workbook = workbook;
 		this.targetClass = targetClass;
 		this.descriptor = new AnnotationSheetDefinition(targetClass);
-		this.workbook = workbook;
+		this.stopOnError = stopOnError;
+		if (converterMap == null || converterMap.size() == 0) {
+			this.converterMap = DEFAULT_CONVERTER_MAP;
+		} else {
+			this.converterMap = Maps.newHashMap();
+			this.converterMap.putAll(DEFAULT_CONVERTER_MAP);
+			this.converterMap.putAll(converterMap);
+		}
 	}
 
 	public void initFieldMap(Row row) {
@@ -68,7 +89,7 @@ public class ExcelParser<T> {
 						tmpList.add(t);
 					}
 				} catch (Exception e) {
-					if (ignoreFieldError) {
+					if (stopOnError) {
 						LOGGER.warn("excel转换数据失败", e);
 					} else {
 						throw new ExcelException("解析excel异常", e);
@@ -98,92 +119,40 @@ public class ExcelParser<T> {
 		return null;
 	}
 
-	private String toStringValue(Cell cell) {
-		switch (cell.getCellType()) {
-		case Cell.CELL_TYPE_NUMERIC:
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				return new SimpleDateFormat(DEFAULT_DATE_FORMAT).format(cell
-						.getDateCellValue());
-			} else {
-				return String.valueOf(cell.getNumericCellValue());
-			}
-		case Cell.CELL_TYPE_BOOLEAN:
-			return String.valueOf(cell.getBooleanCellValue());
-		case Cell.CELL_TYPE_STRING:
-			return cell.getStringCellValue();
-		case Cell.CELL_TYPE_BLANK:
-		case Cell.CELL_TYPE_FORMULA:
-		case Cell.CELL_TYPE_ERROR:
-		default:
-			if (!ignoreFieldError) {
-				throw new RuntimeException("不识别的excel cell类型");
-			}
-		}
-		return null;
-	}
-
-	private Integer toIntegerValue(Cell cell) throws ExcelException {
-		if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
-				&& !HSSFDateUtil.isCellDateFormatted(cell)) {
-			return (int) cell.getNumericCellValue();
-		}
-		if (!ignoreFieldError) {
-			throw new ExcelException();
-		}
-		return null;
-	}
-
-	private Double toDoubleValue(Cell cell) throws ExcelException {
-		if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
-				&& !HSSFDateUtil.isCellDateFormatted(cell)) {
-			return cell.getNumericCellValue();
-		}
-		if (!ignoreFieldError) {
-			throw new ExcelException();
-		}
-		return null;
-	}
-
-	private Date toDateValue(Cell cell) throws ExcelException {
-		if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
-				&& HSSFDateUtil.isCellDateFormatted(cell)) {
-			return cell.getDateCellValue();
-		}
-		if (!ignoreFieldError) {
-			throw new ExcelException();
-		}
-		return null;
-	}
-
 	private void setFieldValue(Field f, Object obj, Cell cell) throws Exception {
 		Class<?> clazz = f.getType();
-		if (clazz == String.class) {
-			f.set(obj, toStringValue(cell));
-		} else if (clazz == int.class || clazz == Integer.class) {
-			f.set(obj, toIntegerValue(cell));
-		} else if (clazz == double.class || clazz == Double.class) {
-			f.set(obj, toDoubleValue(cell));
-		} else if (clazz == Date.class) {
-			f.set(obj, toDateValue(cell));
+		CellConverter<?> cellConverter = converterMap.get(clazz);
+		if (cellConverter != null) {
+			f.set(obj, cellConverter.convert(cell, stopOnError));
 		}
 	}
 
-	public static class SheetParserBuilder<T> {
+	public void setStopOnError(boolean stopOnError) {
+		this.stopOnError = stopOnError;
+	}
+
+	public static class ExcelParserBuilder<T> {
 		private static final Logger LOGGER = LoggerFactory
-				.getLogger(SheetParserBuilder.class);
+				.getLogger(ExcelParserBuilder.class);
 		private Class<T> targetClass;
+		private boolean stopOnError = true;
 		private Workbook workbook;
 
-		private SheetParserBuilder(Class<T> targetClass) {
+		private ExcelParserBuilder(Class<T> targetClass) {
 			this.targetClass = targetClass;
 		}
 
-		public SheetParserBuilder<T> setWorkbook(Workbook workbook) {
+		public ExcelParserBuilder<T> setWorkbook(Workbook workbook) {
 			this.workbook = workbook;
 			return this;
 		}
 
-		public SheetParserBuilder<T> setFilePath(String filePath) {
+		public ExcelParserBuilder<T> setStopOnError(boolean stopOnError) {
+			this.stopOnError = stopOnError;
+			return this;
+		}
+
+		public ExcelParserBuilder<T> setFilePath(String filePath) {
 			try {
 				this.workbook = WorkbookFactory.create(new FileInputStream(
 						filePath));
@@ -193,14 +162,14 @@ public class ExcelParser<T> {
 			return this;
 		}
 
-		public static <T> SheetParserBuilder<T> create(Class<T> targetClass) {
-			return new SheetParserBuilder<T>(targetClass);
+		public static <T> ExcelParserBuilder<T> create(Class<T> targetClass) {
+			return new ExcelParserBuilder<T>(targetClass);
 		}
 
 		public ExcelParser<T> build() {
 			Preconditions.checkNotNull(targetClass, "targetClass不能为空");
 			Preconditions.checkNotNull(workbook, "excel不能为空");
-			return new ExcelParser<T>(targetClass, workbook);
+			return new ExcelParser<T>(workbook, targetClass, stopOnError, null);
 		}
 	}
 }
