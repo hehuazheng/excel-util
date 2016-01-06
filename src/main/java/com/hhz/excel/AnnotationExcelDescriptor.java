@@ -31,15 +31,17 @@ public class AnnotationExcelDescriptor extends AbstractExcelDescripor {
 	}
 
 	public void initFieldMap(Row row) {
-		Preconditions.checkNotNull(row, "标题列不能为空");
-		int cellCount = row.getPhysicalNumberOfCells();
-		for (int i = 1; i <= cellCount; i++) {
-			Cell cell = row.getCell(i);
-			if (cell != null) {
-				String titleName = cell.getStringCellValue().trim();
-				Field f = titleNameFieldMap.get(titleName);
-				if (f != null) {
-					addFieldWrapper(new FieldWrapper(f, i));
+		if (getFieldWrapperList().isEmpty()) {
+			Preconditions.checkNotNull(row, "标题列不能为空");
+			int cellCount = row.getPhysicalNumberOfCells();
+			for (int i = 1; i <= cellCount; i++) {
+				Cell cell = row.getCell(i);
+				if (cell != null) {
+					String titleName = cell.getStringCellValue().trim();
+					Field f = titleNameFieldMap.get(titleName);
+					if (f != null) {
+						addFieldWrapper(new FieldWrapper(f, i));
+					}
 				}
 			}
 		}

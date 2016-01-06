@@ -19,35 +19,40 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.primitives.Primitives;
 import com.hhz.common.Converter;
 
-public class SheetParser<T> {
+public class ExcelParser<T> {
 	private final AnnotationExcelDescriptor descriptor;
 	private final Class<T> targetClass;
 	private Map<Class<?>, Converter<String, ?>> converterMap;
-	private Sheet sheet;
+	private Workbook workbook;
 	private static final String DEFAULT_DATE_FORMAT = "yyyy-mm-dd hh:MM:ss";
 
-	private SheetParser(Class<T> targetClass,
-			Map<Class<?>, Converter<String, ?>> converterMap, Sheet sheet) {
+	private ExcelParser(Class<T> targetClass,
+			Map<Class<?>, Converter<String, ?>> converterMap, Workbook workbook) {
 		this.targetClass = targetClass;
 		this.descriptor = new AnnotationExcelDescriptor(targetClass);
 		this.converterMap = converterMap;
-		this.sheet = sheet;
+		this.workbook = workbook;
 	}
 
 	public List<T> toList() {
 		List<T> list = Lists.newArrayList();
-		Row titleRow = sheet.getRow(descriptor.getTitleRowIndex());
-		this.descriptor.initFieldMap(titleRow);
-		int rowCount = sheet.getPhysicalNumberOfRows();
-		for (int i = descriptor.getTitleRowIndex() + 1; i <= rowCount; i++) {
-			Row row = sheet.getRow(i);
-			T t = convert(row);
-			if (t != null) {
-				list.add(t);
+		int sheetCount = workbook.getNumberOfSheets();
+		for (int i = 0; i < sheetCount; i++) {
+			Sheet sheet = workbook.getSheetAt(i);
+			List<T> tmpList = Lists.newArrayList();
+			Row titleRow = sheet.getRow(descriptor.getTitleRowIndex());
+			this.descriptor.initFieldMap(titleRow);
+			int rowCount = sheet.getPhysicalNumberOfRows();
+			for (int j = descriptor.getTitleRowIndex() + 1; j <= rowCount; j++) {
+				Row row = sheet.getRow(j);
+				T t = convert(row);
+				if (t != null) {
+					tmpList.add(t);
+				}
 			}
+			list.addAll(tmpList);
 		}
 		return list;
 	}
@@ -214,7 +219,7 @@ public class SheetParser<T> {
 			return new SheetParserBuilder<T>(targetClass);
 		}
 
-		public SheetParser<T> build() {
+		public ExcelParser<T> build() {
 			Preconditions.checkNotNull(targetClass, "targetClass不能为空");
 			if (onverterMap == null) {
 				onverterMap = Maps.newHashMap();
@@ -230,8 +235,7 @@ public class SheetParser<T> {
 					onverterMap != null && onverterMap.size() > 0,
 					"类型转换map不能为空");
 			Preconditions.checkNotNull(workbook, "excel不能为空");
-			return new SheetParser<T>(targetClass, onverterMap,
-					workbook.getSheetAt(0));
+			return new ExcelParser<T>(targetClass, onverterMap, workbook);
 		}
 	}
 }

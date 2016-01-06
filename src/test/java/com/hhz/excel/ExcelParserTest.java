@@ -8,11 +8,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
-import com.hhz.excel.SheetParser.SheetParserBuilder;
+import com.hhz.excel.ExcelParser.SheetParserBuilder;
 import com.hhz.excel.annotation.SheetColumn;
 import com.hhz.excel.annotation.SheetModel;
 
-public class SheetParserTest {
+public class ExcelParserTest {
 	@SheetModel
 	static class Cols {
 		@SheetColumn("列1")
