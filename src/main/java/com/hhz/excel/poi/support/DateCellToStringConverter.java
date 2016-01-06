@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 
-import com.hhz.excel.poi.ExcelException;
+import com.hhz.excel.poi.CellConvertException;
 
 public class DateCellToStringConverter implements CellConverter<String> {
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-mm-dd hh:MM:ss";
@@ -21,7 +21,8 @@ public class DateCellToStringConverter implements CellConverter<String> {
 	}
 
 	@Override
-	public String convert(Cell cell, boolean stopOnError) throws ExcelException {
+	public String convert(Cell cell, boolean stopOnError)
+			throws CellConvertException {
 		switch (cell.getCellType()) {
 		case Cell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
@@ -39,7 +40,7 @@ public class DateCellToStringConverter implements CellConverter<String> {
 		case Cell.CELL_TYPE_ERROR:
 		default:
 			if (!stopOnError) {
-				throw new ExcelException("不识别的excel cell类型");
+				throw new CellConvertException("不识别的excel cell类型");
 			}
 		}
 		return null;
