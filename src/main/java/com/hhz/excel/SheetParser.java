@@ -2,9 +2,12 @@ package com.hhz.excel;
 
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -16,14 +19,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Primitives;
 import com.hhz.common.Converter;
-import com.hhz.excel.util.CellUtil;
 
 public class SheetParser<T> {
 	private final AnnotationExcelDescriptor descriptor;
 	private final Class<T> targetClass;
 	private Map<Class<?>, Converter<String, ?>> converterMap;
 	private Sheet sheet;
+	private static final String DEFAULT_DATE_FORMAT = "yyyy-mm-dd hh:MM:ss";
 
 	private SheetParser(Class<T> targetClass,
 			Map<Class<?>, Converter<String, ?>> converterMap, Sheet sheet) {
@@ -52,11 +56,14 @@ public class SheetParser<T> {
 		if (source != null) {
 			try {
 				T r = targetClass.newInstance();
-				for (int i = 1; i <= source.getPhysicalNumberOfCells(); i++) {
-					Field f = this.descriptor.getFieldMap().get(i).getField();
-					if (f != null) {
-						Cell cell = source.getCell(i);
-						setField(f, r, cell);
+				for (FieldWrapper fw : descriptor.getFieldWrapperList()) {
+					Field f = fw.getField();
+					Cell cell = source.getCell(fw.getIndex());
+					try {
+						perfectMatch(f, r, cell);
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw new ParseExcelException(f.getName() + "设置值时出错", e);
 					}
 				}
 				return r;
@@ -67,19 +74,61 @@ public class SheetParser<T> {
 		return null;
 	}
 
-	private void setField(Field f, Object obj, Cell cell)
-			throws ParseExcelException {
-		Converter<String, ?> converter = converterMap.get(f.getType());
-		if (converter == null) {
-			throw new ParseExcelException("不支持的转换类型");
+	private void perfectMatch(Field f, Object obj, Cell cell) throws Exception {
+		Class<?> clazz = f.getType();
+		System.out.println(clazz);
+		switch (cell.getCellType()) {
+		case Cell.CELL_TYPE_NUMERIC:
+			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+				if (clazz == Date.class) {
+					f.set(obj, cell.getDateCellValue());
+				} else {
+					vset(f, obj,
+							new SimpleDateFormat(DEFAULT_DATE_FORMAT)
+									.format(cell.getDateCellValue()));
+				}
+			} else {
+				if (clazz == Double.class || clazz == double.class) {
+					f.set(obj, cell.getNumericCellValue());
+				} else if (clazz == int.class || clazz == Integer.class) {
+					f.set(obj, (int) cell.getNumericCellValue());
+				} else if (clazz == String.class) {
+					f.set(obj, String.valueOf(cell.getNumericCellValue()));
+				} else {
+					vset(f, obj, String.valueOf(cell.getNumericCellValue()));
+				}
+			}
+			break;
+		case Cell.CELL_TYPE_BOOLEAN:
+			if (clazz == boolean.class || clazz == Boolean.class) {
+				f.set(obj, cell.getBooleanCellValue());
+			} else {
+				vset(f, obj, String.valueOf(cell.getBooleanCellValue()));
+			}
+			break;
+		case Cell.CELL_TYPE_STRING:
+			if (clazz == String.class) {
+				f.set(obj, cell.getStringCellValue());
+			} else {
+				vset(f, obj, cell.getStringCellValue());
+			}
+			break;
+		case Cell.CELL_TYPE_BLANK:
+			System.out.println("空列 ");
+			break;
+		case Cell.CELL_TYPE_FORMULA:
+			break;
+		case Cell.CELL_TYPE_ERROR:
+			break;
+		default:
+			throw new RuntimeException("不识别的excel cell类型");
 		}
-		String cellStringValue = CellUtil.readCellValueToString(cell);
-		try {
-			f.set(obj, converter.convert(cellStringValue));
-		} catch (Exception e) {
-			throw new ParseExcelException(f.getName() + "设置值时出错"
-					+ cellStringValue, e);
-		}
+	}
+
+	void vset(Field f, Object obj, String value)
+			throws IllegalArgumentException, IllegalAccessException {
+		Converter<String, ?> converter = this.converterMap.get(f.getType());
+		f.set(obj, converter.convert(value));
 	}
 
 	public static class SheetParserBuilder<T> {

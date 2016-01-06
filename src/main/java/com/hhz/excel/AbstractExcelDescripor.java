@@ -1,15 +1,16 @@
 package com.hhz.excel;
 
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.collect.Maps;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public abstract class AbstractExcelDescripor {
 	private int titleRowIndex;
-	protected Map<Integer, FieldWrapper> fieldMap;
+	protected List<FieldWrapper> fieldWrapperList;
 
 	public AbstractExcelDescripor() {
-		fieldMap = Maps.newHashMap();
+		fieldWrapperList = Lists.newArrayList();
 	}
 
 	public int getTitleRowIndex() {
@@ -20,15 +21,28 @@ public abstract class AbstractExcelDescripor {
 		this.titleRowIndex = titleRowIndex;
 	}
 
-	public Map<Integer, FieldWrapper> getFieldMap() {
-		return fieldMap;
+	public List<FieldWrapper> addFieldWrapper(FieldWrapper fieldWrapper) {
+		conflictCheck(fieldWrapper);
+		fieldWrapperList.add(fieldWrapper);
+		return fieldWrapperList;
 	}
 
-	public void setFieldMap(Map<Integer, FieldWrapper> fieldMap) {
-		this.fieldMap = fieldMap;
+	private void conflictCheck(FieldWrapper fieldWrapper) {
+		for (FieldWrapper fw : fieldWrapperList) {
+			Preconditions.checkArgument(
+					fw.getField() != fieldWrapper.getField(), fw.getField()
+							.getName() + "冲突");
+			Preconditions.checkArgument(
+					fw.getIndex() != fieldWrapper.getIndex(),
+					"列标冲突" + fw.getIndex());
+		}
 	}
 
-	enum ExtractType {
-		byName, byIndex;
+	public List<FieldWrapper> getFieldWrapperList() {
+		return fieldWrapperList;
+	}
+
+	public void setFieldWrapperList(List<FieldWrapper> fieldWrapperList) {
+		this.fieldWrapperList = fieldWrapperList;
 	}
 }

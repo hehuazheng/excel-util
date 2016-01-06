@@ -23,6 +23,14 @@ public class SheetParserTest {
 		private String col3;
 		@SheetColumn("列4")
 		private double col4;
+		@SheetColumn("列5")
+		private String col5;
+		@SheetColumn("列6")
+		private int col6;
+		@SheetColumn("列7")
+		private Integer col7;
+		@SheetColumn("列8")
+		private Integer col8;
 
 		public String getCol1() {
 			return col1;
@@ -54,6 +62,38 @@ public class SheetParserTest {
 
 		public void setCol4(double col4) {
 			this.col4 = col4;
+		}
+
+		public String getCol5() {
+			return col5;
+		}
+
+		public void setCol5(String col5) {
+			this.col5 = col5;
+		}
+
+		public int getCol6() {
+			return col6;
+		}
+
+		public void setCol6(int col6) {
+			this.col6 = col6;
+		}
+
+		public Integer getCol7() {
+			return col7;
+		}
+
+		public void setCol7(Integer col7) {
+			this.col7 = col7;
+		}
+
+		public Integer getCol8() {
+			return col8;
+		}
+
+		public void setCol8(Integer col8) {
+			this.col8 = col8;
 		}
 	}
 

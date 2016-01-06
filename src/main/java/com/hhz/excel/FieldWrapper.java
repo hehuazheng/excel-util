@@ -3,13 +3,15 @@ package com.hhz.excel;
 import java.lang.reflect.Field;
 
 public class FieldWrapper {
-	public FieldWrapper(Field field, String displayName) {
+	public FieldWrapper(Field field, int index) {
+		field.setAccessible(true);
 		this.field = field;
-		this.displayName = displayName;
+		this.index = index;
 	}
 
 	private Field field;
-	private String displayName;
+	// 列标
+	private int index;
 
 	public Field getField() {
 		return field;
@@ -19,11 +21,11 @@ public class FieldWrapper {
 		this.field = field;
 	}
 
-	public String getDisplayName() {
-		return displayName;
+	public int getIndex() {
+		return index;
 	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	public void setIndex(int index) {
+		this.index = index;
 	}
 }

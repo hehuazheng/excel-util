@@ -39,8 +39,7 @@ public class AnnotationExcelDescriptor extends AbstractExcelDescripor {
 				String titleName = cell.getStringCellValue().trim();
 				Field f = titleNameFieldMap.get(titleName);
 				if (f != null) {
-					f.setAccessible(true);
-					fieldMap.put(i, new FieldWrapper(f, ""));
+					addFieldWrapper(new FieldWrapper(f, i));
 				}
 			}
 		}
