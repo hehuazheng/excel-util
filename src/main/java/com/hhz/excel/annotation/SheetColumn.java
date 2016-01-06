@@ -7,23 +7,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface ExcelModel {
-	/**
-	 * excel 标题栏所在行数
-	 */
-	int titleRowIndex() default 0;
-
-	RangeType rangeType() default RangeType.FIXED;
-
-	public enum RangeType {
-		FIXED, RELATIVE;
-	}
-
-	int minSheetRange() default 0;
-
-	int maxSheetRange() default Integer.MAX_VALUE;
+public @interface SheetColumn {
+	String value();
 }

@@ -8,8 +8,8 @@ import org.apache.poi.ss.usermodel.Row;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.hhz.excel.annotation.ExcelColumn;
-import com.hhz.excel.annotation.ExcelModel;
+import com.hhz.excel.annotation.SheetColumn;
+import com.hhz.excel.annotation.SheetModel;
 
 public class AnnotationExcelDescriptor extends AbstractExcelDescripor {
 	private Map<String, Field> titleNameFieldMap = null;
@@ -17,16 +17,15 @@ public class AnnotationExcelDescriptor extends AbstractExcelDescripor {
 	public AnnotationExcelDescriptor(Class<?> clazz) {
 		super();
 		Preconditions.checkArgument(
-				clazz.isAnnotationPresent(ExcelModel.class), clazz
+				clazz.isAnnotationPresent(SheetModel.class), clazz
 						+ "上未加ExcelModel注解");
-		ExcelModel model = clazz.getAnnotation(ExcelModel.class);
+		SheetModel model = clazz.getAnnotation(SheetModel.class);
 		super.setTitleRowIndex(model.titleRowIndex());
-		super.setExtractType(ExtractType.byName);
 		titleNameFieldMap = Maps.newHashMap();
 		for (Field field : clazz.getDeclaredFields()) {
-			ExcelColumn excelColumn = field.getAnnotation(ExcelColumn.class);
-			if (excelColumn != null) {
-				titleNameFieldMap.put(excelColumn.value(), field);
+			SheetColumn sheetColumn = field.getAnnotation(SheetColumn.class);
+			if (sheetColumn != null) {
+				titleNameFieldMap.put(sheetColumn.value(), field);
 			}
 		}
 	}
@@ -40,7 +39,8 @@ public class AnnotationExcelDescriptor extends AbstractExcelDescripor {
 				String titleName = cell.getStringCellValue().trim();
 				Field f = titleNameFieldMap.get(titleName);
 				if (f != null) {
-					fieldMap.put(i, f);
+					f.setAccessible(true);
+					fieldMap.put(i, new FieldWrapper(f, ""));
 				}
 			}
 		}
