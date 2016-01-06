@@ -1,4 +1,4 @@
-package com.hhz.excel;
+package com.hhz.excel.poi;
 
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hhz.common.Converter;
+import com.hhz.excel.support.AnnotationSheetDefinition;
 
 public class ExcelParser<T> {
 	private final AnnotationSheetDefinition descriptor;
@@ -36,6 +37,23 @@ public class ExcelParser<T> {
 		this.workbook = workbook;
 	}
 
+	public void initFieldMap(Row row) {
+		if (descriptor.getFieldWrapperList().isEmpty()) {
+			Preconditions.checkNotNull(row, "标题列不能为空");
+			int cellCount = row.getPhysicalNumberOfCells();
+			for (int i = 1; i <= cellCount; i++) {
+				Cell cell = row.getCell(i);
+				if (cell != null) {
+					String titleName = cell.getStringCellValue().trim();
+					Field f = descriptor.getFieldByTitleName(titleName);
+					if (f != null) {
+						descriptor.addFieldWrapper(new FieldWrapper(f, i));
+					}
+				}
+			}
+		}
+	}
+
 	public List<T> toList() {
 		List<T> list = Lists.newArrayList();
 		int sheetCount = workbook.getNumberOfSheets();
@@ -43,7 +61,7 @@ public class ExcelParser<T> {
 			Sheet sheet = workbook.getSheetAt(i);
 			List<T> tmpList = Lists.newArrayList();
 			Row titleRow = sheet.getRow(descriptor.getTitleRowIndex());
-			this.descriptor.initFieldMap(titleRow);
+			initFieldMap(titleRow);
 			int rowCount = sheet.getPhysicalNumberOfRows();
 			for (int j = descriptor.getTitleRowIndex() + 1; j <= rowCount; j++) {
 				Row row = sheet.getRow(j);

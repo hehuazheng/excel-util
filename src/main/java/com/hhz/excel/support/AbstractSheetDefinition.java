@@ -1,9 +1,10 @@
-package com.hhz.excel;
+package com.hhz.excel.support;
 
 import java.util.List;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.hhz.excel.poi.FieldWrapper;
 
 public abstract class AbstractSheetDefinition {
 	private int titleRowIndex;
