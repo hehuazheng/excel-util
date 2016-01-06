@@ -8,11 +8,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
-import com.hhz.excel.ExcelParser.ExcelParserBuilder;
+import com.hhz.excel.SheetParser.SheetParserBuilder;
 import com.hhz.excel.annotation.SheetColumn;
 import com.hhz.excel.annotation.SheetModel;
 
-public class ExcelParserTest {
+public class SheetParserTest {
 	@SheetModel
 	static class Cols {
 		@SheetColumn("列1")
@@ -61,8 +61,8 @@ public class ExcelParserTest {
 	public void testParse() throws Exception {
 		Workbook wb = WorkbookFactory.create(new FileInputStream(TestFileUtils
 				.getFilePath("test.xlsx")));
-		List<Cols> list = ExcelParserBuilder.create(Cols.class).build()
-				.parse(wb);
+		List<Cols> list = SheetParserBuilder.create(Cols.class).setWorkbook(wb)
+				.build().toList();
 		System.out.println(JSON.toJSONString(list));
 	}
 
