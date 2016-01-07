@@ -27,32 +27,16 @@ public class ExcelParser<T> {
 	private final Class<T> targetClass;
 	private Workbook workbook;
 	private boolean stopOnError = true;
-	private static final Map<Class<?>, CellConverter<?>> DEFAULT_CONVERTER_MAP;
-	static {
-		Map<Class<?>, CellConverter<?>> map = Maps.newHashMap();
-		map.put(int.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
-		map.put(Integer.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
-		map.put(double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
-		map.put(Double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
-		map.put(String.class, CellConverter.CELL_TO_STRING_CONVERTER);
-		map.put(Date.class, CellConverter.CELL_TO_DATE_CONVERTER);
-		DEFAULT_CONVERTER_MAP = map;
-	}
+
 	private Map<Class<?>, CellConverter<?>> converterMap;
 
 	private ExcelParser(Workbook workbook, Class<T> targetClass,
-			boolean stopOnError, Map<Class<?>, CellConverter<Cell>> converterMap) {
+			Map<Class<?>, CellConverter<?>> converterMap, boolean stopOnError) {
 		this.workbook = workbook;
 		this.targetClass = targetClass;
 		this.descriptor = new AnnotationSheetDefinition(targetClass);
+		this.converterMap = converterMap;
 		this.stopOnError = stopOnError;
-		if (converterMap == null || converterMap.size() == 0) {
-			this.converterMap = DEFAULT_CONVERTER_MAP;
-		} else {
-			this.converterMap = Maps.newHashMap();
-			this.converterMap.putAll(DEFAULT_CONVERTER_MAP);
-			this.converterMap.putAll(converterMap);
-		}
 	}
 
 	public void initFieldMap(Row row) {
@@ -134,6 +118,19 @@ public class ExcelParser<T> {
 	public static class ExcelParserBuilder<T> {
 		private static final Logger LOGGER = LoggerFactory
 				.getLogger(ExcelParserBuilder.class);
+
+		private static final Map<Class<?>, CellConverter<?>> DEFAULT_CONVERTER_MAP;
+		static {
+			Map<Class<?>, CellConverter<?>> map = Maps.newHashMap();
+			map.put(int.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
+			map.put(Integer.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
+			map.put(double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
+			map.put(Double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
+			map.put(String.class, CellConverter.CELL_TO_STRING_CONVERTER);
+			map.put(Date.class, CellConverter.CELL_TO_DATE_CONVERTER);
+			DEFAULT_CONVERTER_MAP = map;
+		}
+
 		private Class<T> targetClass;
 		private boolean stopOnError = true;
 		private Workbook workbook;
@@ -169,7 +166,8 @@ public class ExcelParser<T> {
 		public ExcelParser<T> build() {
 			Preconditions.checkNotNull(targetClass, "targetClass不能为空");
 			Preconditions.checkNotNull(workbook, "excel不能为空");
-			return new ExcelParser<T>(workbook, targetClass, stopOnError, null);
+			return new ExcelParser<T>(workbook, targetClass,
+					DEFAULT_CONVERTER_MAP, stopOnError);
 		}
 	}
 }
