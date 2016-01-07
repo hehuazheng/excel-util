@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.hhz.excel.annotation.SheetColumn;
-import com.hhz.excel.annotation.SheetDescription;
+import com.hhz.excel.annotation.SheetColumnAttribute;
+import com.hhz.excel.annotation.SheetAttribute;
 
 public class AnnotationSheetDefinition extends AbstractSheetDefinition {
 	private Map<String, Field> titleNameFieldMap = null;
@@ -14,15 +14,15 @@ public class AnnotationSheetDefinition extends AbstractSheetDefinition {
 	public AnnotationSheetDefinition(Class<?> clazz) {
 		super();
 		Preconditions.checkArgument(
-				clazz.isAnnotationPresent(SheetDescription.class), clazz
+				clazz.isAnnotationPresent(SheetAttribute.class), clazz
 						+ "上未加ExcelModel注解");
-		SheetDescription model = clazz.getAnnotation(SheetDescription.class);
+		SheetAttribute model = clazz.getAnnotation(SheetAttribute.class);
 		super.setTitleRowIndex(model.titleRowIndex());
 		titleNameFieldMap = Maps.newHashMap();
 		for (Field field : clazz.getDeclaredFields()) {
-			SheetColumn sheetColumn = field.getAnnotation(SheetColumn.class);
+			SheetColumnAttribute sheetColumn = field.getAnnotation(SheetColumnAttribute.class);
 			if (sheetColumn != null) {
-				titleNameFieldMap.put(sheetColumn.value(), field);
+				titleNameFieldMap.put(sheetColumn.title(), field);
 			}
 		}
 	}

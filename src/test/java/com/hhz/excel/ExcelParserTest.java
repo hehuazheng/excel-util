@@ -8,28 +8,28 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
-import com.hhz.excel.annotation.SheetColumn;
-import com.hhz.excel.annotation.SheetDescription;
+import com.hhz.excel.annotation.SheetColumnAttribute;
+import com.hhz.excel.annotation.SheetAttribute;
 import com.hhz.excel.poi.ExcelParser.ExcelParserBuilder;
 
 public class ExcelParserTest {
-	@SheetDescription
+	@SheetAttribute
 	public static class Cols {
-		@SheetColumn("列1")
+		@SheetColumnAttribute(title="列1")
 		private String col1;
-		@SheetColumn("列2")
+		@SheetColumnAttribute(title="列2")
 		private String col2;
-		@SheetColumn("列3")
+		@SheetColumnAttribute(title="列3")
 		private String col3;
-		@SheetColumn("列4")
+		@SheetColumnAttribute(title="列4")
 		private double col4;
-		@SheetColumn("列5")
+		@SheetColumnAttribute(title="列5")
 		private String col5;
-		@SheetColumn("列6")
+		@SheetColumnAttribute(title="列6")
 		private int col6;
-		@SheetColumn("列7")
+		@SheetColumnAttribute(title="列7")
 		private Integer col7;
-		@SheetColumn("列8")
+		@SheetColumnAttribute(title="列8")
 		private Integer col8;
 
 		public String getCol1() {

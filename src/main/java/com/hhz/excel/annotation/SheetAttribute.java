@@ -7,10 +7,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.FIELD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface SheetColumn {
-	String value();
+public @interface SheetAttribute {
+	/**
+	 * excel 标题栏所在行数
+	 */
+	int titleRowIndex() default 0;
 }
