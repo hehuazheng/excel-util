@@ -43,7 +43,7 @@ public class ExcelParser<T> {
 		if (descriptor.getFieldWrapperList().isEmpty()) {
 			Preconditions.checkNotNull(row, "标题列不能为空");
 			int cellCount = row.getPhysicalNumberOfCells();
-			for (int i = 1; i <= cellCount; i++) {
+			for (int i = 0; i < cellCount; i++) {
 				Cell cell = row.getCell(i);
 				if (cell != null) {
 					String titleName = cell.getStringCellValue().trim();

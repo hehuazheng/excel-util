@@ -17,7 +17,11 @@ public interface CellConverter<S> {
 		@Override
 		public Integer convert(Cell cell, boolean stopOnError)
 				throws CellConvertException {
-			if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
+			int cellType = cell.getCellType();
+			if (cellType == Cell.CELL_TYPE_FORMULA) {
+	            cellType = cell.getCachedFormulaResultType();
+	        }
+			if (cellType == Cell.CELL_TYPE_NUMERIC
 					&& !HSSFDateUtil.isCellDateFormatted(cell)) {
 				return (int) cell.getNumericCellValue();
 			}
@@ -32,7 +36,11 @@ public interface CellConverter<S> {
 		@Override
 		public Double convert(Cell cell, boolean stopOnError)
 				throws CellConvertException {
-			if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
+			int cellType = cell.getCellType();
+			if (cellType == Cell.CELL_TYPE_FORMULA) {
+	            cellType = cell.getCachedFormulaResultType();
+	        }
+			if (cellType == Cell.CELL_TYPE_NUMERIC
 					&& !HSSFDateUtil.isCellDateFormatted(cell)) {
 				return cell.getNumericCellValue();
 			}
@@ -47,7 +55,11 @@ public interface CellConverter<S> {
 		@Override
 		public Date convert(Cell cell, boolean stopOnError)
 				throws CellConvertException {
-			if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
+			int cellType = cell.getCellType();
+			if (cellType == Cell.CELL_TYPE_FORMULA) {
+	            cellType = cell.getCachedFormulaResultType();
+	        }
+			if (cellType == Cell.CELL_TYPE_NUMERIC
 					&& HSSFDateUtil.isCellDateFormatted(cell)) {
 				return cell.getDateCellValue();
 			}
