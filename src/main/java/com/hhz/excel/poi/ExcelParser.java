@@ -21,6 +21,8 @@ import com.hhz.excel.poi.support.CellConverter;
 import com.hhz.excel.support.AnnotationSheetDefinition;
 
 public class ExcelParser<T> {
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(ExcelParser.class);
 	private final AnnotationSheetDefinition descriptor;
 	private final Class<T> targetClass;
 	private Workbook workbook;
@@ -105,9 +107,11 @@ public class ExcelParser<T> {
 			try {
 				field.set(obj, cellConverter.convert(cell));
 			} catch (Exception e) {
-				if(f.isRequired()) {
+				if (f.isRequired()) {
+					LOGGER.error(field.getName() + "为空", e);
 					throw e;
 				}
+				LOGGER.warn(field.getName() + "为空", e);
 			}
 		}
 	}
@@ -121,6 +125,8 @@ public class ExcelParser<T> {
 			Map<Class<?>, CellConverter<?>> map = Maps.newHashMap();
 			map.put(int.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
 			map.put(Integer.class, CellConverter.CELL_TO_INTEGER_CONVERTER);
+			map.put(long.class, CellConverter.CELL_TO_LONG_CONVERTER);
+			map.put(Long.class, CellConverter.CELL_TO_LONG_CONVERTER);
 			map.put(double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
 			map.put(Double.class, CellConverter.CELL_TO_DOUBLE_CONVERTER);
 			map.put(String.class, CellConverter.CELL_TO_STRING_CONVERTER);
