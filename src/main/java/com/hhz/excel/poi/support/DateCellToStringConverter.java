@@ -21,8 +21,7 @@ public class DateCellToStringConverter implements CellConverter<String> {
 	}
 
 	@Override
-	public String convert(Cell cell, boolean stopOnError)
-			throws CellConvertException {
+	public String convert(Cell cell) throws CellConvertException {
 		switch (cell.getCellType()) {
 		case Cell.CELL_TYPE_NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
@@ -39,9 +38,6 @@ public class DateCellToStringConverter implements CellConverter<String> {
 		case Cell.CELL_TYPE_FORMULA:
 		case Cell.CELL_TYPE_ERROR:
 		default:
-			if (!stopOnError) {
-				throw new CellConvertException("不识别的excel cell类型");
-			}
 		}
 		return null;
 	}

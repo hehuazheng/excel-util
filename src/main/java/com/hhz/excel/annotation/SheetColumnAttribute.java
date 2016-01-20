@@ -13,4 +13,6 @@ import java.lang.annotation.Target;
 @Documented
 public @interface SheetColumnAttribute {
 	String title();
+
+	boolean required() default false;
 }

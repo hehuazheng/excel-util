@@ -21,12 +21,9 @@ import com.hhz.excel.poi.support.CellConverter;
 import com.hhz.excel.support.AnnotationSheetDefinition;
 
 public class ExcelParser<T> {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(ExcelParser.class);
 	private final AnnotationSheetDefinition descriptor;
 	private final Class<T> targetClass;
 	private Workbook workbook;
-	private boolean stopOnError = true;
 
 	private Map<Class<?>, CellConverter<?>> converterMap;
 
@@ -36,7 +33,6 @@ public class ExcelParser<T> {
 		this.targetClass = targetClass;
 		this.descriptor = new AnnotationSheetDefinition(targetClass);
 		this.converterMap = converterMap;
-		this.stopOnError = stopOnError;
 	}
 
 	public void initFieldMap(Row row) {
@@ -47,9 +43,10 @@ public class ExcelParser<T> {
 				Cell cell = row.getCell(i);
 				if (cell != null) {
 					String titleName = cell.getStringCellValue().trim();
-					Field f = descriptor.getFieldByTitleName(titleName);
-					if (f != null) {
-						descriptor.addFieldWrapper(new FieldWrapper(f, i));
+					FieldWrapper fw = descriptor.getFieldByTitleName(titleName);
+					if (fw != null) {
+						fw.setIndex(i);
+						descriptor.addFieldWrapper(fw);
 					}
 				}
 			}
@@ -73,11 +70,7 @@ public class ExcelParser<T> {
 						tmpList.add(t);
 					}
 				} catch (Exception e) {
-					if (stopOnError) {
-						LOGGER.warn("excel转换数据失败", e);
-					} else {
-						throw new ExcelException("解析excel异常", e);
-					}
+					throw new ExcelException("解析excel异常", e);
 				}
 			}
 			list.addAll(tmpList);
@@ -92,7 +85,7 @@ public class ExcelParser<T> {
 				Field f = fw.getField();
 				Cell cell = source.getCell(fw.getIndex());
 				try {
-					setFieldValue(f, obj, cell);
+					setFieldValue(fw, obj, cell);
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new ParseExcelException(f.getName() + "设置值时出错", e);
@@ -103,16 +96,20 @@ public class ExcelParser<T> {
 		return null;
 	}
 
-	private void setFieldValue(Field f, Object obj, Cell cell) throws Exception {
-		Class<?> clazz = f.getType();
+	private void setFieldValue(FieldWrapper f, Object obj, Cell cell)
+			throws Exception {
+		Field field = f.getField();
+		Class<?> clazz = field.getType();
 		CellConverter<?> cellConverter = converterMap.get(clazz);
 		if (cellConverter != null) {
-			f.set(obj, cellConverter.convert(cell, stopOnError));
+			try {
+				field.set(obj, cellConverter.convert(cell));
+			} catch (Exception e) {
+				if(f.isRequired()) {
+					throw e;
+				}
+			}
 		}
-	}
-
-	public void setStopOnError(boolean stopOnError) {
-		this.stopOnError = stopOnError;
 	}
 
 	public static class ExcelParserBuilder<T> {

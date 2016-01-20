@@ -7,12 +7,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.hhz.excel.annotation.SheetColumnAttribute;
 import com.hhz.excel.annotation.SheetAttribute;
+import com.hhz.excel.poi.FieldWrapper;
 
 public class AnnotationSheetDefinition extends AbstractSheetDefinition {
-	private Map<String, Field> titleNameFieldMap = null;
+	public static int UNPOSSIBLE_INDEX = -1;
+	private Map<String, FieldWrapper> titleNameFieldMap = null;
 
 	public AnnotationSheetDefinition(Class<?> clazz) {
-		super();
 		Preconditions.checkArgument(
 				clazz.isAnnotationPresent(SheetAttribute.class), clazz
 						+ "上未加ExcelModel注解");
@@ -20,14 +21,16 @@ public class AnnotationSheetDefinition extends AbstractSheetDefinition {
 		super.setTitleRowIndex(model.titleRowIndex());
 		titleNameFieldMap = Maps.newHashMap();
 		for (Field field : clazz.getDeclaredFields()) {
-			SheetColumnAttribute sheetColumn = field.getAnnotation(SheetColumnAttribute.class);
+			SheetColumnAttribute sheetColumn = field
+					.getAnnotation(SheetColumnAttribute.class);
 			if (sheetColumn != null) {
-				titleNameFieldMap.put(sheetColumn.title(), field);
+				titleNameFieldMap.put(sheetColumn.title(), new FieldWrapper(
+						field, UNPOSSIBLE_INDEX, sheetColumn.required()));
 			}
 		}
 	}
 
-	public Field getFieldByTitleName(String columnName) {
+	public FieldWrapper getFieldByTitleName(String columnName) {
 		return titleNameFieldMap.get(columnName.trim());
 	}
 }
