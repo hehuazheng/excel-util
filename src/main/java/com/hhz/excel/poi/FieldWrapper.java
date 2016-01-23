@@ -3,16 +3,16 @@ package com.hhz.excel.poi;
 import java.lang.reflect.Field;
 
 public class FieldWrapper {
-	public FieldWrapper(Field field, int index, boolean required) {
+	public FieldWrapper(Field field, String displayName, int index,
+			boolean required) {
 		field.setAccessible(true);
 		this.field = field;
-		this.index = index;
+		this.displayName = displayName;
 		this.required = required;
 	}
 
 	private Field field;
-	// 列标
-	private int index;
+	private String displayName;
 	private boolean required;
 
 	public Field getField() {
@@ -23,12 +23,12 @@ public class FieldWrapper {
 		this.field = field;
 	}
 
-	public int getIndex() {
-		return index;
+	public String getDisplayName() {
+		return displayName;
 	}
 
-	public void setIndex(int index) {
-		this.index = index;
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 	public boolean isRequired() {

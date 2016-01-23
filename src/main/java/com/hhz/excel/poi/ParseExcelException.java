@@ -1,6 +1,6 @@
 package com.hhz.excel.poi;
 
-public class ParseExcelException extends Exception {
+public class ParseExcelException extends ExcelException {
 	private static final long serialVersionUID = 8765691838152931080L;
 
 	public ParseExcelException() {

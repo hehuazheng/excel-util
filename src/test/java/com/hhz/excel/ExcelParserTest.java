@@ -1,35 +1,32 @@
 package com.hhz.excel;
 
-import java.io.FileInputStream;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
-import com.hhz.excel.annotation.SheetColumnAttribute;
 import com.hhz.excel.annotation.SheetAttribute;
-import com.hhz.excel.poi.ExcelParser.ExcelParserBuilder;
+import com.hhz.excel.annotation.SheetColumnAttribute;
+import com.hhz.excel.poi.ExcelParserFactory;
 
 public class ExcelParserTest {
 	@SheetAttribute
 	public static class Cols {
-		@SheetColumnAttribute(title="列1")
+		@SheetColumnAttribute(title = "列1")
 		private String col1;
-		@SheetColumnAttribute(title="列2")
+		@SheetColumnAttribute(title = "列2")
 		private String col2;
-		@SheetColumnAttribute(title="列3")
+		@SheetColumnAttribute(title = "列3")
 		private String col3;
-		@SheetColumnAttribute(title="列4")
+		@SheetColumnAttribute(title = "列4")
 		private double col4;
-		@SheetColumnAttribute(title="列5")
+		@SheetColumnAttribute(title = "列5")
 		private String col5;
-		@SheetColumnAttribute(title="列6")
+		@SheetColumnAttribute(title = "列6")
 		private int col6;
-		@SheetColumnAttribute(title="列7")
+		@SheetColumnAttribute(title = "列7")
 		private Integer col7;
-		@SheetColumnAttribute(title="列8")
+		@SheetColumnAttribute(title = "列8")
 		private Integer col8;
 
 		public String getCol1() {
@@ -99,10 +96,9 @@ public class ExcelParserTest {
 
 	@Test
 	public void testParse() throws Exception {
-		Workbook wb = WorkbookFactory.create(new FileInputStream(TestFileUtils
-				.getFilePath("test.xlsx")));
-		List<Cols> list = ExcelParserBuilder.create(Cols.class).setWorkbook(wb)
-				.build().toList();
+		List<Cols> list = ExcelParserFactory.builder(Cols.class)
+				.workbook(TestFileUtils.getFilePath("test.xlsx")).build()
+				.toList();
 		System.out.println(JSON.toJSONString(list));
 	}
 
