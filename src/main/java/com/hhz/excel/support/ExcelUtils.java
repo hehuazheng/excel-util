@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 public class ExcelUtils {
-	public static Workbook getWorkbook(String fileName) {
+	public static Workbook getXSSFWorkbook(String fileName) {
 		try {
 			return WorkbookFactory.create(new File(fileName));
 		} catch (InvalidFormatException e) {
@@ -19,7 +19,7 @@ public class ExcelUtils {
 		}
 	}
 
-	public static Workbook getWorkbook(InputStream is) {
+	public static Workbook getXSSFWorkbook(InputStream is) {
 		try {
 			return WorkbookFactory.create(is);
 		} catch (InvalidFormatException e) {

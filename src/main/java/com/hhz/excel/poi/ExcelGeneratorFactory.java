@@ -26,12 +26,12 @@ public class ExcelGeneratorFactory {
 
 		public Builder template(InputStream is) {
 			Preconditions.checkArgument(workbook == null, "不允许设置重复的模板");
-			workbook = ExcelUtils.getWorkbook(is);
+			workbook = ExcelUtils.getXSSFWorkbook(is);
 			return this;
 		}
 
 		public Builder template(String templateFile) {
-			workbook = ExcelUtils.getWorkbook(templateFile);
+			workbook = ExcelUtils.getXSSFWorkbook(templateFile);
 			return this;
 		}
 

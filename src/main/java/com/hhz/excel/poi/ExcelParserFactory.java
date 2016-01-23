@@ -15,13 +15,13 @@ public class ExcelParserFactory {
 
 		public Builder<T> workbook(String filePath) {
 			Preconditions.checkArgument(workbook == null, "不允许重复设置workbook");
-			this.workbook = ExcelUtils.getWorkbook(filePath);
+			this.workbook = ExcelUtils.getXSSFWorkbook(filePath);
 			return this;
 		}
 
 		public Builder<T> workbook(InputStream inputStream) {
 			Preconditions.checkArgument(workbook == null, "不允许重复设置workbook");
-			this.workbook = ExcelUtils.getWorkbook(inputStream);
+			this.workbook = ExcelUtils.getXSSFWorkbook(inputStream);
 			return this;
 		}
 
