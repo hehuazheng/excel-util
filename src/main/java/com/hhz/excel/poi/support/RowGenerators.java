@@ -37,7 +37,7 @@ public class RowGenerators {
 									} else if (val instanceof Date) {
 										cell.setCellValue((Date) val);
 									} else if (val instanceof Boolean) {
-										cell.setCellValue((boolean) val);
+										cell.setCellValue((Boolean)val);
 									} else if (val instanceof String) {
 										cell.setCellValue((String) val);
 									} else {

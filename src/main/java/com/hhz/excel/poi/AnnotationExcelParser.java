@@ -67,7 +67,7 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 	@Override
 	protected List<T> processOneSheet(Sheet sheet) throws ExcelException {
 		List<T> list = Lists.newArrayList();
-		Row titleRow = sheet.getRow(descriptor.getTitleRowIndex());
+		Row titleRow = sheet.getRow(descriptor.getTitleRowIndex() - 1);
 		initFieldMap(titleRow);
 		int rowCount = sheet.getPhysicalNumberOfRows();
 		for (int j = descriptor.getTitleRowIndex(); j <= rowCount; j++) {
