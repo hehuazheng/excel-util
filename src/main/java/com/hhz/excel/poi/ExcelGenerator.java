@@ -6,24 +6,23 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.hhz.excel.poi.support.RowGenerator;
-import com.hhz.excel.poi.support.RowGenerators;
 
-public abstract class ExcelGenerator {
+public abstract class ExcelGenerator<T> {
+	protected final Class<T> targetClass;
 	protected Workbook workbook;
 
 	protected abstract Sheet getProcessSheet();
 
-	public ExcelGenerator(Workbook workbook) {
+	public ExcelGenerator(Workbook workbook, Class<T> targetClass) {
 		this.workbook = workbook;
+		this.targetClass = targetClass;
 	}
 
-	public <D> Workbook process(List<D> list) throws ExcelException {
-		return process(list, RowGenerators.getDefaultGenerator());
-	}
+	abstract RowGenerator getRowGenerator();
 
-	public <D> Workbook process(List<D> list, RowGenerator rg)
-			throws ExcelException {
-		for (D d : list) {
+	public Workbook process(List<T> list) throws ExcelException {
+		RowGenerator rg = getRowGenerator();
+		for (T d : list) {
 			rg.generate(getProcessSheet(), d);
 		}
 		return workbook;

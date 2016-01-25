@@ -9,28 +9,30 @@ import com.google.common.base.Preconditions;
 import com.hhz.excel.support.ExcelUtils;
 
 public class ExcelGeneratorFactory {
-	public static class Builder {
+	public static class Builder<T> {
+		private Class<T> targetClass;
 		private Workbook workbook;
 
-		private Builder() {
+		private Builder(Class<T> targetClass) {
+			this.targetClass = targetClass;
 		}
 
-		public ExcelGenerator build() {
+		public ExcelGenerator<T> build() {
 			if (workbook == null) {
 				workbook = new XSSFWorkbook();
-				return new NewExcelGenerator(this);
+				return new NewExcelGenerator<T>(this);
 			} else {
-				return new TemplateExcelGenerator(this);
+				return new TemplateExcelGenerator<T>(this);
 			}
 		}
 
-		public Builder template(InputStream is) {
+		public Builder<T> template(InputStream is) {
 			Preconditions.checkArgument(workbook == null, "不允许设置重复的模板");
 			workbook = ExcelUtils.getXSSFWorkbook(is);
 			return this;
 		}
 
-		public Builder template(String templateFile) {
+		public Builder<T> template(String templateFile) {
 			workbook = ExcelUtils.getXSSFWorkbook(templateFile);
 			return this;
 		}
@@ -38,10 +40,14 @@ public class ExcelGeneratorFactory {
 		public Workbook getWorkbook() {
 			return workbook;
 		}
+
+		public Class<T> getTargetClass() {
+			return targetClass;
+		}
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	public static <T> Builder<T> builder(Class<T> targetClass) {
+		return new Builder<T>(targetClass);
 	}
 
 }

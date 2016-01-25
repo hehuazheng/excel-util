@@ -20,8 +20,8 @@ public class FieldUtils {
 			if (sheetColumn != null) {
 				title = sheetColumn.title();
 				required = sheetColumn.required();
+				list.add(new FieldWrapper(field, title, i, required));
 			}
-			list.add(new FieldWrapper(field, title, i, required));
 		}
 		return list;
 	}

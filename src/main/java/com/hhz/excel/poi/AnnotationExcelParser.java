@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.hhz.excel.poi.support.FieldNameIndexMapper;
 import com.hhz.excel.support.AnnotationSheetDefinition;
 
 public class AnnotationExcelParser<T> extends ExcelParser<T> {
@@ -20,28 +20,8 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 		descriptor = new AnnotationSheetDefinition(targetClass);
 	}
 
-	private boolean indexInitialized = false;
-
 	private final AnnotationSheetDefinition descriptor;
 	private Map<Integer, FieldWrapper> fieldIndexMap;
-
-	public void initFieldMap(Row row) {
-		if (!indexInitialized) {
-			fieldIndexMap = Maps.newHashMap();
-			int cellCount = row.getPhysicalNumberOfCells();
-			for (int i = 0; i < cellCount; i++) {
-				Cell cell = row.getCell(i);
-				if (cell != null) {
-					String titleName = cell.getStringCellValue().trim();
-					FieldWrapper fw = descriptor.getFieldByTitleName(titleName);
-					if (fw != null) {
-						fieldIndexMap.put(i, fw);
-					}
-				}
-			}
-			indexInitialized = true;
-		}
-	}
 
 	@Override
 	protected T convert(Row source) throws ExcelException {
@@ -68,7 +48,10 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 	protected List<T> processOneSheet(Sheet sheet) throws ExcelException {
 		List<T> list = Lists.newArrayList();
 		Row titleRow = sheet.getRow(descriptor.getTitleRowIndex() - 1);
-		initFieldMap(titleRow);
+		if (fieldIndexMap == null) {
+			fieldIndexMap = FieldNameIndexMapper.toIndexedMap(titleRow,
+					descriptor.getFieldWrapperList());
+		}
 		int rowCount = sheet.getPhysicalNumberOfRows();
 		for (int j = descriptor.getTitleRowIndex(); j <= rowCount; j++) {
 			Row row = sheet.getRow(j);

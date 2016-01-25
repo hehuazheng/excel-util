@@ -47,7 +47,7 @@ public class ExcelGeneratorTest {
 		d2.setAddr("addr2");
 		List<Data> list = Lists.newArrayList(d1, d2);
 		ExcelGeneratorFactory
-				.builder()
+				.builder(Data.class)
 				.build()
 				.process(list)
 				.write(new FileOutputStream(TestFileUtils
@@ -64,7 +64,7 @@ public class ExcelGeneratorTest {
 		d2.setAddr("addr2");
 		List<Data> list = Lists.newArrayList(d1, d2);
 		ExcelGeneratorFactory
-				.builder()
+				.builder(Data.class)
 				.template(TestFileUtils.getFilePath("testw.xlsx"))
 				.build()
 				.process(list)

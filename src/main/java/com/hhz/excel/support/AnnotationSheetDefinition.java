@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.hhz.excel.annotation.SheetAttribute;
 import com.hhz.excel.annotation.SheetColumnAttribute;
 import com.hhz.excel.poi.FieldWrapper;
@@ -19,22 +18,10 @@ public class AnnotationSheetDefinition extends AbstractSheetDefinition {
 			super.setTitleRowIndex(attr.titleRowIndex());
 		}
 		this.fieldWrapperList = getFieldWrapperList(clazz);
-		initTitleFieldMap();
 	}
 
 	public FieldWrapper getFieldByTitleName(String columnName) {
 		return titleNameFieldMap.get(columnName.trim());
-	}
-
-	private void initTitleFieldMap() {
-		titleNameFieldMap = Maps.newLinkedHashMap();
-		for (FieldWrapper fw : fieldWrapperList) {
-			String title = fw.getDisplayName().trim();
-			if (titleNameFieldMap.containsKey(title)) {
-				throw new IllegalArgumentException("重复的标题名" + title);
-			}
-			titleNameFieldMap.put(title, fw);
-		}
 	}
 
 	public static List<FieldWrapper> getFieldWrapperList(Class<?> clazz) {

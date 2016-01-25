@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import com.hhz.excel.annotation.SheetAttribute;
 
 public class ExcelUtils {
 	public static Workbook getXSSFWorkbook(String fileName) {
@@ -27,5 +31,18 @@ public class ExcelUtils {
 		} catch (IOException e) {
 			throw new IllegalArgumentException("生成workbook失败", e);
 		}
+	}
+
+	/**
+	 * 获取标题行
+	 */
+	public static Row getTitleRow(Sheet sheet, Class<?> targetClass) {
+		SheetAttribute sheetAttr = targetClass
+				.getAnnotation(SheetAttribute.class);
+		int titleRowIndex = 0;
+		if (sheetAttr != null) {
+			titleRowIndex = sheetAttr.titleRowIndex() - 1;
+		}
+		return sheet.getRow(titleRowIndex);
 	}
 }
