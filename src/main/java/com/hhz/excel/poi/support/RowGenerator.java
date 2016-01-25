@@ -5,6 +5,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import com.hhz.excel.poi.ExcelException;
 
-public interface RowGenerator {
-	Row generate(Sheet sheet, Object rowData) throws ExcelException;
+public interface RowGenerator<T> {
+	Row generate(Sheet sheet, T rowData) throws ExcelException;
 }

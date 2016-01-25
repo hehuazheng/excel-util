@@ -5,9 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
+import com.google.common.collect.Maps;
+import com.hhz.excel.annotation.SheetColumnAttribute;
 import com.hhz.excel.poi.support.FieldNameIndexMapper;
 import com.hhz.excel.poi.support.RowGenerator;
 import com.hhz.excel.support.ExcelUtils;
@@ -18,7 +23,6 @@ public class TemplateExcelGenerator<T> extends ExcelGenerator<T> {
 
 	public TemplateExcelGenerator(ExcelGeneratorFactory.Builder<T> builder) {
 		super(builder.getWorkbook(), builder.getTargetClass());
-		myRowGenerator = new MyRowGenerator<T>(getProcessSheet(), targetClass);
 	}
 
 	@Override
@@ -27,30 +31,48 @@ public class TemplateExcelGenerator<T> extends ExcelGenerator<T> {
 	}
 
 	@Override
-	RowGenerator getRowGenerator() {
+	RowGenerator<T> getRowGenerator() {
+		if (myRowGenerator == null) {
+			myRowGenerator = new MyRowGenerator<T>(this);
+		}
 		return myRowGenerator;
 	}
 
-	private static class MyRowGenerator<D> implements RowGenerator {
+	private static class MyRowGenerator<D> implements RowGenerator<D> {
 		Map<Integer, FieldWrapper> indexFieldMap;
+		private final Workbook workbook;
 		private int columnCount = 0;
+		private Map<String, CellStyle> cellStyleMap = Maps.newHashMap();
 
-		public MyRowGenerator(Sheet sheet, Class<D> targetClass) {
-			Row titleRow = ExcelUtils.getTitleRow(sheet, targetClass);
+		public MyRowGenerator(TemplateExcelGenerator<D> generator) {
+			this.workbook = generator.workbook;
+			Row titleRow = ExcelUtils.getTitleRow(generator.getProcessSheet(),
+					generator.targetClass);
 			columnCount = titleRow.getPhysicalNumberOfCells();
 			List<FieldWrapper> fieldWrapperList = FieldUtils
-					.getFieldWrapperList(targetClass);
+					.getFieldWrapperList(generator.targetClass);
 			indexFieldMap = FieldNameIndexMapper.toIndexedMap(titleRow,
 					fieldWrapperList);
 		}
 
+		private CellStyle createDateCellStyleIfNecessary(String dateFormat) {
+			CellStyle cellStyle = cellStyleMap.get(dateFormat);
+			if (cellStyle == null) {
+				cellStyle = workbook.createCellStyle();
+				CreationHelper createHelper = workbook.getCreationHelper();
+				cellStyle.setDataFormat(createHelper.createDataFormat()
+						.getFormat(dateFormat));
+				cellStyleMap.put(dateFormat, cellStyle);
+			}
+			return cellStyle;
+		}
+
 		@Override
-		public Row generate(Sheet sheet, Object rowData) throws ExcelException {
+		public Row generate(Sheet sheet, D rowData) throws ExcelException {
 			int currentRowNum = sheet.getPhysicalNumberOfRows();
 			Row r = sheet.createRow(currentRowNum);
-			int colIndex = 1;
 			for (int i = 0; i < columnCount; i++) {
-				Cell cell = r.createCell(colIndex++);
+				Cell cell = r.createCell(i);
 				FieldWrapper fw = indexFieldMap.get(i);
 				if (fw != null) {
 					try {
@@ -60,6 +82,12 @@ public class TemplateExcelGenerator<T> extends ExcelGenerator<T> {
 						} else if (val instanceof Number) {
 							cell.setCellValue(((Number) val).doubleValue());
 						} else if (val instanceof Date) {
+							SheetColumnAttribute sca = fw.getField()
+									.getAnnotation(SheetColumnAttribute.class);
+							if (sca != null) {
+								String dateFormat = sca.dateFormat();
+								cell.setCellStyle(createDateCellStyleIfNecessary(dateFormat));
+							}
 							cell.setCellValue((Date) val);
 						} else if (val instanceof Boolean) {
 							cell.setCellValue((Boolean) val);

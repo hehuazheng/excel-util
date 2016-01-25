@@ -14,5 +14,7 @@ import java.lang.annotation.Target;
 public @interface SheetColumnAttribute {
 	String title();
 
+	String dateFormat() default "yyyy-MM-dd HH:mm:ss";
+
 	boolean required() default false;
 }

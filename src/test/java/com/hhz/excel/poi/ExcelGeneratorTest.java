@@ -49,7 +49,7 @@ public class ExcelGeneratorTest {
 		ExcelGeneratorFactory
 				.builder(Data.class)
 				.build()
-				.process(list)
+				.addRows(list)
 				.write(new FileOutputStream(TestFileUtils
 						.getFilePath("testw-created.xlsx")));
 	}
@@ -67,7 +67,7 @@ public class ExcelGeneratorTest {
 				.builder(Data.class)
 				.template(TestFileUtils.getFilePath("testw.xlsx"))
 				.build()
-				.process(list)
+				.addRows(list)
 				.write(new FileOutputStream(TestFileUtils
 						.getFilePath("testw-created.xlsx")));
 	}

@@ -24,25 +24,25 @@ public class NewExcelGenerator<T> extends ExcelGenerator<T> {
 	}
 
 	@Override
-	RowGenerator getRowGenerator() {
+	RowGenerator<T> getRowGenerator() {
 		return getDefaultGenerator();
 	}
 
-	private static RowGenerator DEFAULT_ROW_GENERATOR;
+	private RowGenerator<T> rowGenerator;
 
-	public static RowGenerator getDefaultGenerator() {
-		if (DEFAULT_ROW_GENERATOR == null) {
+	public RowGenerator<T> getDefaultGenerator() {
+		if (rowGenerator == null) {
 			synchronized (NewExcelGenerator.class) {
-				if (DEFAULT_ROW_GENERATOR == null) {
-					DEFAULT_ROW_GENERATOR = new RowGenerator() {
+				if (rowGenerator == null) {
+					rowGenerator = new RowGenerator<T>() {
 						@Override
-						public Row generate(Sheet sheet, Object data)
+						public Row generate(Sheet sheet, T data)
 								throws ExcelException {
 							int currentRowNum = sheet.getPhysicalNumberOfRows();
 							Row r = sheet.createRow(currentRowNum);
 							List<FieldWrapper> list = FieldUtils
 									.getFieldWrapperList(data.getClass());
-							int colIndex = 1;
+							int colIndex = 0;
 							for (FieldWrapper fw : list) {
 								Cell cell = r.createCell(colIndex++);
 								try {
@@ -74,6 +74,6 @@ public class NewExcelGenerator<T> extends ExcelGenerator<T> {
 				}
 			}
 		}
-		return DEFAULT_ROW_GENERATOR;
+		return rowGenerator;
 	}
 }

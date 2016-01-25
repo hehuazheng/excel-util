@@ -18,10 +18,10 @@ public abstract class ExcelGenerator<T> {
 		this.targetClass = targetClass;
 	}
 
-	abstract RowGenerator getRowGenerator();
+	abstract RowGenerator<T> getRowGenerator();
 
-	public Workbook process(List<T> list) throws ExcelException {
-		RowGenerator rg = getRowGenerator();
+	public Workbook addRows(List<T> list) throws ExcelException {
+		RowGenerator<T> rg = getRowGenerator();
 		for (T d : list) {
 			rg.generate(getProcessSheet(), d);
 		}
