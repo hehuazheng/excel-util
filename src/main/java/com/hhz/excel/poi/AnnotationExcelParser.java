@@ -30,13 +30,15 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 			for (Map.Entry<Integer, FieldWrapper> entry : fieldIndexMap
 					.entrySet()) {
 				int index = entry.getKey();
-				FieldWrapper fw = entry.getValue();
-				Field f = fw.getField();
 				Cell cell = source.getCell(index);
-				try {
-					setFieldValue(fw, obj, cell);
-				} catch (Exception e) {
-					throw new ParseExcelException(f.getName() + "设置值时出错", e);
+				if (cell != null) {
+					FieldWrapper fw = entry.getValue();
+					Field f = fw.getField();
+					try {
+						setFieldValue(fw, obj, cell);
+					} catch (Exception e) {
+						throw new ParseExcelException(f.getName() + "设置值时出错", e);
+					}
 				}
 			}
 			return obj;

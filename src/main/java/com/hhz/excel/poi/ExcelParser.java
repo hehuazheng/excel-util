@@ -48,18 +48,20 @@ public abstract class ExcelParser<T> {
 
 	protected void setFieldValue(FieldWrapper f, Object obj, Cell cell)
 			throws Exception {
-		Field field = f.getField();
-		Class<?> clazz = field.getType();
-		CellConverter<?> cellConverter = converterMap.get(clazz);
-		if (cellConverter != null) {
-			try {
-				field.set(obj, cellConverter.convert(cell));
-			} catch (Exception e) {
-				if (f.isRequired()) {
-					LOGGER.error(field.getName() + "为空", e);
-					throw e;
+		if (cell != null) {
+			Field field = f.getField();
+			Class<?> clazz = field.getType();
+			CellConverter<?> cellConverter = converterMap.get(clazz);
+			if (cellConverter != null) {
+				try {
+					field.set(obj, cellConverter.convert(cell));
+				} catch (Exception e) {
+					if (f.isRequired()) {
+						LOGGER.error(field.getName() + "为空", e);
+						throw e;
+					}
+					LOGGER.warn(field.getName() + "为空", e);
 				}
-				LOGGER.warn(field.getName() + "为空", e);
 			}
 		}
 	}

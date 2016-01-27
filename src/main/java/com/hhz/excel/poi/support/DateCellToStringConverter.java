@@ -22,22 +22,24 @@ public class DateCellToStringConverter implements CellConverter<String> {
 
 	@Override
 	public String convert(Cell cell) throws CellConvertException {
-		switch (cell.getCellType()) {
-		case Cell.CELL_TYPE_NUMERIC:
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
-				return new SimpleDateFormat(dateFormat).format(cell
-						.getDateCellValue());
-			} else {
-				return String.valueOf(cell.getNumericCellValue());
+		if (cell != null) {
+			switch (cell.getCellType()) {
+			case Cell.CELL_TYPE_NUMERIC:
+				if (HSSFDateUtil.isCellDateFormatted(cell)) {
+					return new SimpleDateFormat(dateFormat).format(cell
+							.getDateCellValue());
+				} else {
+					return String.valueOf(cell.getNumericCellValue());
+				}
+			case Cell.CELL_TYPE_BOOLEAN:
+				return String.valueOf(cell.getBooleanCellValue());
+			case Cell.CELL_TYPE_STRING:
+				return cell.getStringCellValue();
+			case Cell.CELL_TYPE_BLANK:
+			case Cell.CELL_TYPE_FORMULA:
+			case Cell.CELL_TYPE_ERROR:
+			default:
 			}
-		case Cell.CELL_TYPE_BOOLEAN:
-			return String.valueOf(cell.getBooleanCellValue());
-		case Cell.CELL_TYPE_STRING:
-			return cell.getStringCellValue();
-		case Cell.CELL_TYPE_BLANK:
-		case Cell.CELL_TYPE_FORMULA:
-		case Cell.CELL_TYPE_ERROR:
-		default:
 		}
 		return null;
 	}

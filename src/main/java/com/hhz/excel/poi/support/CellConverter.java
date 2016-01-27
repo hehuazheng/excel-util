@@ -16,13 +16,15 @@ public interface CellConverter<S> {
 	public static CellConverter<Integer> CELL_TO_INTEGER_CONVERTER = new CellConverter<Integer>() {
 		@Override
 		public Integer convert(Cell cell) throws CellConvertException {
-			int cellType = cell.getCellType();
-			if (cellType == Cell.CELL_TYPE_FORMULA) {
-				cellType = cell.getCachedFormulaResultType();
-			}
-			if (cellType == Cell.CELL_TYPE_NUMERIC
-					&& !HSSFDateUtil.isCellDateFormatted(cell)) {
-				return (int) cell.getNumericCellValue();
+			if (cell != null) {
+				int cellType = cell.getCellType();
+				if (cellType == Cell.CELL_TYPE_FORMULA) {
+					cellType = cell.getCachedFormulaResultType();
+				}
+				if (cellType == Cell.CELL_TYPE_NUMERIC
+						&& !HSSFDateUtil.isCellDateFormatted(cell)) {
+					return (int) cell.getNumericCellValue();
+				}
 			}
 			return null;
 		}
@@ -31,18 +33,20 @@ public interface CellConverter<S> {
 	public static CellConverter<Long> CELL_TO_LONG_CONVERTER = new CellConverter<Long>() {
 		@Override
 		public Long convert(Cell cell) throws CellConvertException {
-			int cellType = cell.getCellType();
-			if (cellType == Cell.CELL_TYPE_FORMULA) {
-				cellType = cell.getCachedFormulaResultType();
-			}
-			if (cellType == Cell.CELL_TYPE_NUMERIC
-					&& !HSSFDateUtil.isCellDateFormatted(cell)) {
-				double value = cell.getNumericCellValue();
-
-				if (Math.floor(value) == value) {
-					return Math.round(value);
+			if (cell != null) {
+				int cellType = cell.getCellType();
+				if (cellType == Cell.CELL_TYPE_FORMULA) {
+					cellType = cell.getCachedFormulaResultType();
 				}
-				throw new CellConvertException(value + "不能转换为long");
+				if (cellType == Cell.CELL_TYPE_NUMERIC
+						&& !HSSFDateUtil.isCellDateFormatted(cell)) {
+					double value = cell.getNumericCellValue();
+
+					if (Math.floor(value) == value) {
+						return Math.round(value);
+					}
+					throw new CellConvertException(value + "不能转换为long");
+				}
 			}
 			return null;
 		}
@@ -51,13 +55,15 @@ public interface CellConverter<S> {
 	public static CellConverter<Double> CELL_TO_DOUBLE_CONVERTER = new CellConverter<Double>() {
 		@Override
 		public Double convert(Cell cell) throws CellConvertException {
-			int cellType = cell.getCellType();
-			if (cellType == Cell.CELL_TYPE_FORMULA) {
-				cellType = cell.getCachedFormulaResultType();
-			}
-			if (cellType == Cell.CELL_TYPE_NUMERIC
-					&& !HSSFDateUtil.isCellDateFormatted(cell)) {
-				return cell.getNumericCellValue();
+			if (cell != null) {
+				int cellType = cell.getCellType();
+				if (cellType == Cell.CELL_TYPE_FORMULA) {
+					cellType = cell.getCachedFormulaResultType();
+				}
+				if (cellType == Cell.CELL_TYPE_NUMERIC
+						&& !HSSFDateUtil.isCellDateFormatted(cell)) {
+					return cell.getNumericCellValue();
+				}
 			}
 			return null;
 		}
@@ -66,13 +72,15 @@ public interface CellConverter<S> {
 	public static CellConverter<Date> CELL_TO_DATE_CONVERTER = new CellConverter<Date>() {
 		@Override
 		public Date convert(Cell cell) throws CellConvertException {
-			int cellType = cell.getCellType();
-			if (cellType == Cell.CELL_TYPE_FORMULA) {
-				cellType = cell.getCachedFormulaResultType();
-			}
-			if (cellType == Cell.CELL_TYPE_NUMERIC
-					&& HSSFDateUtil.isCellDateFormatted(cell)) {
-				return cell.getDateCellValue();
+			if (cell != null) {
+				int cellType = cell.getCellType();
+				if (cellType == Cell.CELL_TYPE_FORMULA) {
+					cellType = cell.getCachedFormulaResultType();
+				}
+				if (cellType == Cell.CELL_TYPE_NUMERIC
+						&& HSSFDateUtil.isCellDateFormatted(cell)) {
+					return cell.getDateCellValue();
+				}
 			}
 			return null;
 		}
