@@ -11,7 +11,7 @@ public interface CellConverter<S> {
 
 	S convert(Cell cell) throws CellConvertException;
 
-	public static CellConverter<String> CELL_TO_STRING_CONVERTER = new DateCellToStringConverter();
+	public static CellConverter<String> CELL_TO_STRING_CONVERTER = new CellToStringConverter();
 
 	public static CellConverter<Integer> CELL_TO_INTEGER_CONVERTER = new CellConverter<Integer>() {
 		@Override

@@ -7,18 +7,8 @@ import org.apache.poi.ss.usermodel.Cell;
 
 import com.hhz.excel.poi.CellConvertException;
 
-public class DateCellToStringConverter implements CellConverter<String> {
+public class CellToStringConverter implements CellConverter<String> {
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-mm-dd hh:MM:ss";
-
-	private String dateFormat;
-
-	public DateCellToStringConverter() {
-		this(DEFAULT_DATE_FORMAT);
-	}
-
-	public DateCellToStringConverter(String dateFormat) {
-		this.dateFormat = dateFormat;
-	}
 
 	@Override
 	public String convert(Cell cell) throws CellConvertException {
@@ -26,10 +16,15 @@ public class DateCellToStringConverter implements CellConverter<String> {
 			switch (cell.getCellType()) {
 			case Cell.CELL_TYPE_NUMERIC:
 				if (HSSFDateUtil.isCellDateFormatted(cell)) {
-					return new SimpleDateFormat(dateFormat).format(cell
-							.getDateCellValue());
+					return new SimpleDateFormat(DEFAULT_DATE_FORMAT)
+							.format(cell.getDateCellValue());
 				} else {
-					return String.valueOf(cell.getNumericCellValue());
+					Double doubleValue = cell.getNumericCellValue();
+					if (doubleValue == doubleValue.intValue()) {
+						return String.valueOf(doubleValue.intValue());
+					} else {
+						return String.valueOf(cell.getNumericCellValue());
+					}
 				}
 			case Cell.CELL_TYPE_BOOLEAN:
 				return String.valueOf(cell.getBooleanCellValue());
