@@ -27,7 +27,7 @@ public class AnnotationSheetDefinition extends AbstractSheetDefinition {
 	public static List<FieldWrapper> getFieldWrapperList(Class<?> clazz) {
 		List<FieldWrapper> list = Lists.newArrayList();
 		Field[] fields = clazz.getDeclaredFields();
-		for (int i = 1; i < fields.length; i++) {
+		for (int i = 1; i <= fields.length; i++) {
 			Field field = fields[i - 1];
 			SheetColumnAttribute sheetColumn = field
 					.getAnnotation(SheetColumnAttribute.class);
