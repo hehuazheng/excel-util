@@ -27,11 +27,13 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 	protected T convert(Row source) throws ExcelException {
 		if (source != null) {
 			T obj = newRowModel();
+			boolean allCellsIsNull = true;
 			for (Map.Entry<Integer, FieldWrapper> entry : fieldIndexMap
 					.entrySet()) {
 				int index = entry.getKey();
 				Cell cell = source.getCell(index);
 				if (cell != null) {
+					allCellsIsNull = false;
 					FieldWrapper fw = entry.getValue();
 					Field f = fw.getField();
 					try {
@@ -40,6 +42,9 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 						throw new ParseExcelException(f.getName() + "设置值时出错", e);
 					}
 				}
+			}
+			if(allCellsIsNull) {//全为空白时直接返空
+				return null;
 			}
 			return obj;
 		}
