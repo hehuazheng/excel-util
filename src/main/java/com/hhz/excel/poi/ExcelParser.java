@@ -46,7 +46,7 @@ public abstract class ExcelParser<T> {
 		this.multiSheet = multiSheetEnabled;
 	}
 
-	protected void setFieldValue(FieldWrapper f, Object obj, Cell cell)
+	protected Object setFieldValue(FieldWrapper f, Object obj, Cell cell)
 			throws Exception {
 		if (cell != null) {
 			Field field = f.getField();
@@ -54,7 +54,9 @@ public abstract class ExcelParser<T> {
 			CellConverter<?> cellConverter = converterMap.get(clazz);
 			if (cellConverter != null) {
 				try {
-					field.set(obj, cellConverter.convert(cell));
+					Object fieldValue = cellConverter.convert(cell);
+					field.set(obj, fieldValue);
+					return fieldValue;
 				} catch (Exception e) {
 					if (f.isRequired()) {
 						LOGGER.error(field.getName() + "为空", e);
@@ -64,6 +66,7 @@ public abstract class ExcelParser<T> {
 				}
 			}
 		}
+		return null;
 	}
 
 	protected T newRowModel() throws ExcelException {

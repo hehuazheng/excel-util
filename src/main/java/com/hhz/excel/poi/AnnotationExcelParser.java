@@ -33,17 +33,19 @@ public class AnnotationExcelParser<T> extends ExcelParser<T> {
 				int index = entry.getKey();
 				Cell cell = source.getCell(index);
 				if (cell != null) {
-					allCellsIsNull = false;
 					FieldWrapper fw = entry.getValue();
 					Field f = fw.getField();
 					try {
-						setFieldValue(fw, obj, cell);
+						Object fieldValue = setFieldValue(fw, obj, cell);
+						if (fieldValue != null) {
+							allCellsIsNull = false;
+						}
 					} catch (Exception e) {
 						throw new ParseExcelException(f.getName() + "设置值时出错", e);
 					}
 				}
 			}
-			if(allCellsIsNull) {//全为空白时直接返空
+			if (allCellsIsNull) {// 全为空白时直接返空
 				return null;
 			}
 			return obj;
